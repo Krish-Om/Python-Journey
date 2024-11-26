@@ -1,2 +1,5 @@
-print("Hello" ,"wolrd", 989)
+a =float (input("Enter a"))
+b = float(input ("Enter b"))
+
+print("sum : ", a+b , "\nDifference: ",a-b,"\nProduct:",a*b,"\nDivsion: ",a/b)
 
