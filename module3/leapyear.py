@@ -6,4 +6,3 @@ elif year % 100 != 0:
     print("Leap year")
 else:
     print("Leap year")
-
