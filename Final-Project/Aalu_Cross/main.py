@@ -1,6 +1,7 @@
 #Developing a Tic-Tac-Toe TUI or Aalu_Cross using python as Final project of PE1 course from netacad.com
+board = []
 
-<BS>def display_board(board):
+def display_board(board):
     # The function accepts one parameter containing the board's current status
     # and prints it out to the console.
 
