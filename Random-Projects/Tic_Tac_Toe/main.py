@@ -11,42 +11,78 @@ def print_board(board):
             print("-" * 11)
 
 
-# def get_move(turn, board):
-#     while True:
+def get_move(turn, board):
+    while True:
+        row = int(input("row: "))
+        col = int(input("col: "))
+
+        if row < 1 or row > len(board):
+            print("Invalid move, try again")
+        elif col < 1 or col > len(board[row -1]) :
+            print("Invalid col, try again")
+        elif board[row - 1][col - 1] != " ":
+            print("Already taken, try again")
+        else:
+            break
+
+    board[row - 1][col - 1] = turn
+
+
+def check_win(board,turn):
+    lines = [
+        [(0, 0), (0, 1), (0, 2)],
+        [(1, 0), (1, 1), (1, 2)],
+        [(2, 0), (2, 1), (2, 2)],
+        [(0, 0), (1, 0), (2, 0)],
+        [(0, 1), (1, 1), (2, 1)],
+        [(0, 2), (1, 2), (2, 2)],
+        [(0, 0), (1, 1), (2, 2)],
+        [(0, 2), (1, 1), (2, 0)],
+    ]
+    
+    for line in lines:
+        win = True
+        for pos in line:
+            row, col = pos                
+            if board[row][col] != turn:
+                win = False
+                break
+            
+        if win:
+            return True
+    return False
+
+
+def init_game(board):
+    turn = "X"
+    turn_number = 0
+    print_board(board)
+
+    while turn_number < 9:
+        print()
+        print("It is the ", turn, " players turn. Please pick you turn")
+        get_move(turn, board)
+        print_board(board)
+        winner = check_win(board,turn)
+        if winner :
+            break
+        if turn == "X":
+            turn = "O"
+        else:
+            turn = "X"
+        turn_number += 1
+
+    if turn_number == 9:
+        print("Tied Game!!")
+    else:
+        print("Winner is : ", turn )
         
 
-#         if row < 1 or row > len(board):
-#             print("Invalid row, try again")
-#         elif col < 1 or col > len(board[row - 1]):
-#             print("Invalid col, try again")
-#         elif board[row - 1][col - 1] == "X" or board[]:
-#             print("Already taken, try again")
-#         else:
-#             break
-#     board[row - 1][col - 1] = turn
 
-def get_move(choice,board):
-    turn = "X"
-    for i in range(len(board)):
-        for j in range(len(board[i])):
-            if choice == board[i][j]:
-                board[i][j] = turn;
-                if board[i][j] == turn:
-                    print("Already taken, try another spot")
-                    continue
-                if turn == "X":
-                    turn = "O"
-                else:
-                    turn = "X"  
-                
-                
 board = [
-    ["1", "2", "3"],
-    ["4", "5", "6"],
-    ["7", "8", "9"],
+    [" ", " ", " "],
+    [" ", " ", " "],
+    [" ", " ", " "],
 ]
 
-print_board(board)
-choice = input("Enter your choice")
-get_move(choice,board)
-print_board(board)
+init_game(board)
