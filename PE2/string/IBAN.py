@@ -1,5 +1,4 @@
-iban = "DE89 3704 0044 0532 0130 00"
-
+iban = input("Enter an IBAN number: ")
 # print(iban[4:]+iban[0:4])
 iban= iban.replace(" ",'')
 
