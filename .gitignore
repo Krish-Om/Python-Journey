@@ -4,3 +4,4 @@ ENV/
 env/
 .venv/
 *.pdf
+*.apkg
