@@ -6,5 +6,6 @@ class LandVehicle(Vehicle):
 
 class Jeep(LandVehicle):
     pass
-
+j = Jeep()
 print(issubclass(Jeep,(Vehicle,LandVehicle)))
+print(isinstance(j,Jeep))
