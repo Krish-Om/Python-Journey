@@ -1,6 +1,7 @@
 # fileName = input("Enter the file name: ")
-file= "/home/krishom/Workspace/python/PE2/MIsc/FilesAndStreams/samplefile.txt"
+from os import strerror
 
+file= "/home/krishom/Workspace/python/PE2/MIsc/FilesAndStreams/samplefile.txt"
 
 class StudentsDataException(Exception):
     pass
@@ -19,30 +20,33 @@ class FileEmpty(StudentsDataException):
         print("The files content is empty!!!, this must not be the respective file.")
         exit(1)    
     # Write your code here.
-lines =[]
-students = []
+
+
 data = {}
+
 try:
-    stream = open(file, "rt")
-    for line in stream.readlines():
-        lines.append(line.split())
-        # lines.pop()
-    print(lines)
-    for s in lines:
-        name = s[0]+" "+s[1]
-        score = float(s[2])
-        if name in data.keys():
-            data[name]=score+float(s[2])
-        data[name] = score
-        
-    print(data)
-    stream.close()
+    f = open(file,"rt")
+    lines = f.readlines()
+    f.close()
+
+    for line in lines:
+        columns = line.split()
+
+        std = columns[0] + " " + columns[1]
+
+        points = float(columns[2])
+
+        try:
+            data[std] += points
+        except KeyError:
+            data[std] = points
+    
+    for std in sorted(data.keys()):
+        print(std,'\t',data[std])
+
+except IOError as e:
+    print(e)
 except BadLine:
     print(BadLine)
 except FileEmpty:
     print(FileEmpty)
-except IOError as e:
-    print(e)
-    
-
-
