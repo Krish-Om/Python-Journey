@@ -6,3 +6,5 @@ if a == b:
     print(True) 
 else:
     print(False)
+
+c = input("Enter a value")
