@@ -5,3 +5,7 @@ env/
 .venv/
 *.pdf
 *.apkg
+
+*.jpg
+*.jpeg
+*.wav
