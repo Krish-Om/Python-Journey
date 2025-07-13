@@ -11,6 +11,6 @@ resources/
 *.wav
 *.mp3
 *.png
-
+*.tex
 
 *.pyc
