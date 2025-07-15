@@ -3,14 +3,5 @@ venv/
 ENV/
 env/
 .venv/
-*.pdf
-*.apkg
-resources/
-*.jpg
-*.jpeg
-*.wav
-*.mp3
-*.png
-*.tex
 
 *.pyc
