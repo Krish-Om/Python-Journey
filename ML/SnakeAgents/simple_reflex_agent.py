@@ -1,4 +1,5 @@
 def simple_agent(game):
+    print("Running simple reflex agent")
     head_x, head_y = game.snake.x[0], game.snake.y[0]
     apple_x, apple_y = game.apple.x, game.apple.y
 

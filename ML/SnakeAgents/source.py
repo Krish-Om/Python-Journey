@@ -7,6 +7,15 @@ from datetime import (
 )  # Although not used for elapsed time, imported for general time needs
 import math  # For calculating Euclidean distance
 from simple_reflex_agent import simple_agent
+from goal_based_agent import goal_based_agent
+from model_based_agent import model_based_agent
+from utility_based import utility_based_agent
+from learning_agent.learning_model import (
+    learning_model,
+    handle_game_over,
+    reset_learning_state,
+)
+
 # --- Game Configuration Constants ---
 SIZE = 40  # Size of each block (snake segment, apple) in pixels
 BACKGROUND_COLOR = (110, 110, 5)  # A greenish-brown color for fallback background
@@ -251,9 +260,7 @@ class Game:
             ""  # Stores the formatted total elapsed time when the game ends.
         )
 
-        self.game_speed = (
-            0.30  # Controls how fast the snake moves (lower value = faster).
-        )
+        self.game_speed = 0.01  # Controls how fast the snake moves (lower value = faster). Reduced for autonomous play
         self.start_time = (
             time.time()
         )  # Records the timestamp when the current game session starts.
@@ -261,7 +268,6 @@ class Game:
     def play_background_music(self):
         """Loads and plays background music in an infinite loop."""
         pass
-    
 
     def play_sound(self, sound_name):
         """
@@ -273,11 +279,14 @@ class Game:
 
     def reset(self):
         """Resets the game state for a new round after game over."""
+        handle_game_over()  # Handle learning agent game over
         self.snake = Snake(self.surface)  # Recreate a new snake.
         self.apple = Apple(self.surface)  # Recreate a new apple.
         self.elapsed_time = ""  # Clear elapsed time.
         self.snake.best_time = ""  # Clear best time for eating an apple.
         self.start_time = time.time()  # Reset the start time for the new game.
+        # DO NOT reset learning state - preserve trained knowledge
+        # reset_learning_state()  # This was clearing the agent's memory!
 
     def is_collision(self, x1, y1, x2, y2):
         """
@@ -507,8 +516,8 @@ class Game:
             ):
                 return True  # Collides with self (body)
 
-        return False  # No collision    
-    
+        return False  # No collision
+
     def _calculate_distance(self, x1, y1, x2, y2):
         """
         Calculates the Euclidean distance between two points.
@@ -518,7 +527,7 @@ class Game:
         Returns:
             float: The Euclidean distance.
         """
-        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)        
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
     def _evaluate_safety(self, x, y):
         """
@@ -571,9 +580,17 @@ class Game:
     def run(self):
         """
         The main game loop. Handles events, updates game state, and controls game flow.
+        Now optimized for autonomous Q-learning agent gameplay.
         """
         running = True  # Controls if the game window is open.
         pause = False  # Controls if the game logic is paused.
+        auto_restart = True  # Automatically restart after game over
+        games_played = 0
+
+        print("🎮 Starting Autonomous Q-Learning Snake Game")
+        print("🤖 Agent will play continuously using trained model")
+        print("⌨️  Press ESC to quit, SPACE to toggle auto-restart")
+        print("=" * 50)
 
         while running:
             # Event handling loop: processes user inputs (keyboard, window close).
@@ -581,6 +598,11 @@ class Game:
                 if event.type == KEYDOWN:  # A key has been pressed.
                     if event.key == K_ESCAPE:
                         running = False  # Set running to False to exit the game loop.
+                        print(f"\n🏁 Game ended! Total games played: {games_played}")
+
+                    if event.key == K_SPACE:  # Space key to toggle auto-restart
+                        auto_restart = not auto_restart
+                        print(f"🔄 Auto-restart: {'ON' if auto_restart else 'OFF'}")
 
                     if event.key == K_RETURN:  # Enter key pressed.
                         pygame.mixer.music.unpause()  # Resume background music.
@@ -588,27 +610,18 @@ class Game:
                             self.start_time = time.time()  # Reset game start time.
                         pause = False  # Unpause the game.
                         self.reset()  # Reset the game state for a new round.
+                        games_played += 1
 
-                    if (
-                        not pause
-                    ):  # Only allow snake movement if the game is not paused.
-                        if event.key == K_LEFT:
-                            self.snake.move_left()
-                        elif event.key == K_RIGHT:
-                            self.snake.move_right()
-                        elif event.key == K_UP:
-                            self.snake.move_up()
-                        elif event.key == K_DOWN:
-                            self.snake.move_down()
+                    # Remove manual controls - agent plays autonomously
+                    # Manual controls disabled for autonomous play
 
                 elif event.type == QUIT:  # User clicked the window close button (X).
                     running = False  # Exit the game loop.
+                    print(f"\n🏁 Game ended! Total games played: {games_played}")
 
-            # Agent movement control: Uncomment one of the lines below to activate an agent.
+            # Agent movement control: Q-Learning Agent plays automatically
             if not pause:
-                # pass
-                simple_agent(self)
-                # self.random_agent() # Activate the simple, greedy agent
+                learning_model(self)  # Q-Learning Agent makes all decisions
 
             # Game logic and rendering executed only if the game is not paused.
             try:
@@ -616,8 +629,24 @@ class Game:
                     self.play()  # Execute one frame of the game (move snake, check collisions, draw).
             except Exception as e:
                 # Catch exceptions raised during play (e.g., "Collision Occurred", "Wall Collision!").
+                games_played += 1
+                final_score = self.snake.length - 1
+                print(
+                    f"🎯 Game {games_played}: Score = {final_score}, Reason: {str(e)}"
+                )
+
                 self.show_game_over(str(e))  # Display the specific game over message.
-                pause = True  # Pause the game after game over.
+
+                if auto_restaert:
+                    # Automatically restart after a short delay
+                    time.sleep(1.0)  # Brief pause to show game over screen
+                    self.start_time = time.time()
+                    pause = False
+                    self.reset()
+                    print(f"🔄 Auto-restarting game {games_played + 1}...")
+                else:
+                    pause = True  # Pause the game after game over.
+                    print("⏸️  Game paused. Press ENTER to continue or ESC to quit.")
 
             # Control game speed using time.sleep().
             # Lower `self.game_speed` value means faster game updates.
